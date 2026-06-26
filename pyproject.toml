@@ -1,0 +1,9 @@
+[project]
+name = "aegis-ai"
+version = "0.0.1"
+description = "Institutional AI Trading Platform"
+requires-python = ">=3.13"
+
+authors = [
+    {name = "Nitin"}
+]
