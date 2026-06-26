@@ -1,15 +1,18 @@
+"""
+AEGIS AI
+
+Main application entry point.
+"""
+
 from fastapi import FastAPI
 
+from backend.api.routes import router
+from backend.core.settings import settings
+
 app = FastAPI(
-    title="AEGIS AI",
-    version="0.0.1",
-    description="Institutional AI Trading Platform"
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    description=settings.APP_DESCRIPTION,
 )
 
-@app.get("/")
-def root():
-    return {
-        "application": "AEGIS AI",
-        "version": "0.0.1",
-        "status": "running"
-    }
+app.include_router(router)
