@@ -26,10 +26,16 @@ class CandleSeries:
 
     def latest(self) -> Candle:
         """Return the most recent candle."""
+        if not self._candles:
+            raise ValueError("CandleSeries is empty")
+
         return self._candles[-1]
 
     def previous(self) -> Candle:
         """Return the previous completed candle."""
+        if len(self._candles) < 2:
+            raise ValueError("CandleSeries contains fewer than two candles")
+
         return self._candles[-2]
 
     def __len__(self) -> int:
@@ -37,3 +43,7 @@ class CandleSeries:
 
     def __iter__(self) -> Iterator[Candle]:
         return iter(self._candles)
+
+    def is_empty(self) -> bool:
+        """Return True if the series contains no candles."""
+        return len(self._candles) == 0
