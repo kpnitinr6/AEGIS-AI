@@ -44,3 +44,4 @@ git commit -m "<version> - <description>"
 - Add type hints
 - Write meaningful names
 - Avoid magic numbers
+
