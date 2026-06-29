@@ -7,3 +7,12 @@ requires-python = ">=3.13"
 authors = [
     {name = "Nitin"}
 ]
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+python_files = [
+    "test_*.py",
+]
+
+addopts = "-ra"
