@@ -45,3 +45,38 @@ git commit -m "<version> - <description>"
 - Write meaningful names
 - Avoid magic numbers
 
+## The Commander Rule
+
+Architecture discussions are encouraged.
+
+Complete file contents are mandatory.
+
+If Aris forgets the files, the Commander is authorized to interrupt immediately by asking:
+
+"Content?"
+
+## Types of Aris Sprints
+
+### Implementation Sprint
+
+Objective:
+Deliver a working feature.
+
+Deliverables:
+- Complete implementation
+- Automated tests
+- Green test suite
+- Commit
+
+### Architecture Sprint
+
+Objective:
+Reduce future complexity.
+
+Deliverables:
+- Design review
+- ADR or documentation update
+- Architectural decision
+- Implementation plan
+
+Architecture sprints are considered complete even if no production code is written.

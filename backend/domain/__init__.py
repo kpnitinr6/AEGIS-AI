@@ -19,6 +19,9 @@ from .structure_type import StructureType
 from .market_structure import MarketStructure
 from .trend import Trend
 from .trend_state import TrendState
+from .evidence import Evidence
+from .evidence_direction import EvidenceDirection
+from .evidence_source import EvidenceSource
 
 __all__ = [
     "Candle",
@@ -34,4 +37,7 @@ __all__ = [
     "TrendState",
     "StructurePoint"
     "StructureType",
+    "Evidence",
+    "EvidenceDirection",
+    "EvidenceSource",
 ]

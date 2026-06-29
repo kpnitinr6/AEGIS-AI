@@ -6,52 +6,56 @@ Fake Market Adapter
 Used for development and testing.
 """
 
-from datetime import datetime, timedelta
+from __future__ import annotations
+
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 from backend.adapters.base import MarketAdapter
 from backend.domain.candle import Candle
 from backend.domain.candle_series import CandleSeries
+from backend.domain.instrument import Instrument
+from backend.domain.time import Time
 from backend.domain.timeframe import Timeframe
 
 
 class FakeMarketAdapter(MarketAdapter):
     """
-    Generates fake candles.
+    Fake implementation of the MarketAdapter.
 
-    Used for testing architecture before
-    connecting to MT5.
+    Generates deterministic candles for testing.
     """
 
     def get_candles(
         self,
-        symbol: str,
+        instrument: Instrument,
         timeframe: Timeframe,
         count: int,
     ) -> CandleSeries:
 
         series = CandleSeries()
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
 
-        price = 3300.0
+        price = Decimal("3300.00")
 
-        for i in range(count):
+        for index in range(count):
 
             candle = Candle(
-                symbol=symbol,
+                instrument=instrument,
                 timeframe=timeframe,
-                timestamp=now - timedelta(minutes=count - i),
-
+                open_time=Time(
+                    now - timedelta(minutes=count - index)
+                ),
                 open=price,
-                high=price + 3,
-                low=price - 2,
-                close=price + 1,
-
-                tick_volume=1000 + i,
+                high=price + Decimal("3.00"),
+                low=price - Decimal("2.00"),
+                close=price + Decimal("1.00"),
+                tick_volume=1000 + index,
             )
 
             series.add(candle)
 
-            price += 1
+            price += Decimal("1.00")
 
         return series
