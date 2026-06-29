@@ -15,12 +15,12 @@ from backend.domain import (
 
 def test_create_valid_evidence() -> None:
     evidence = Evidence(
-        source=EvidenceSource.STRUCTURE,
+        source=EvidenceSource.TREND,
         direction=EvidenceDirection.BULLISH,
         reason="Higher High",
     )
 
-    assert evidence.source == EvidenceSource.STRUCTURE
+    assert evidence.source == EvidenceSource.TREND
     assert evidence.direction == EvidenceDirection.BULLISH
     assert evidence.reason == "Higher High"
 
@@ -28,7 +28,7 @@ def test_create_valid_evidence() -> None:
 def test_invalid_source() -> None:
     with pytest.raises(TypeError):
         Evidence(
-            source="STRUCTURE",
+            source="TREND",
             direction=EvidenceDirection.BULLISH,
             reason="Higher High",
         )
@@ -37,7 +37,7 @@ def test_invalid_source() -> None:
 def test_invalid_direction() -> None:
     with pytest.raises(TypeError):
         Evidence(
-            source=EvidenceSource.STRUCTURE,
+            source=EvidenceSource.TREND,
             direction="BULLISH",
             reason="Higher High",
         )
@@ -46,7 +46,7 @@ def test_invalid_direction() -> None:
 def test_invalid_reason_type() -> None:
     with pytest.raises(TypeError):
         Evidence(
-            source=EvidenceSource.STRUCTURE,
+            source=EvidenceSource.TREND,
             direction=EvidenceDirection.BULLISH,
             reason=123,
         )
@@ -55,7 +55,7 @@ def test_invalid_reason_type() -> None:
 def test_empty_reason() -> None:
     with pytest.raises(ValueError):
         Evidence(
-            source=EvidenceSource.STRUCTURE,
+            source=EvidenceSource.TREND,
             direction=EvidenceDirection.BULLISH,
             reason="   ",
         )
@@ -63,7 +63,7 @@ def test_empty_reason() -> None:
 
 def test_evidence_is_immutable() -> None:
     evidence = Evidence(
-        source=EvidenceSource.STRUCTURE,
+        source=EvidenceSource.TREND,
         direction=EvidenceDirection.BULLISH,
         reason="Higher High",
     )

@@ -8,9 +8,9 @@ from decimal import Decimal
 import pytest
 
 from backend.domain import (
+    Candle,
     Instrument,
     MarketStructure,
-    Price,
     StructurePoint,
     StructureType,
     Swing,
@@ -23,40 +23,66 @@ from backend.domain import (
 from backend.services.trend_analyzer import TrendAnalyzer
 
 
+def make_candle(
+    *,
+    high: str,
+    low: str,
+    close: str,
+    minute: int,
+) -> Candle:
+    return Candle(
+        instrument=Instrument(
+            code="XAUUSD",
+            name="Gold Spot",
+        ),
+        timeframe=Timeframe.M5,
+        open_time=Time(
+            datetime(
+                2026,
+                6,
+                29,
+                9,
+                minute,
+                tzinfo=timezone.utc,
+            )
+        ),
+        open=Decimal(close),
+        high=Decimal(high),
+        low=Decimal(low),
+        close=Decimal(close),
+        tick_volume=1000,
+    )
+
+
 def make_point(structure: StructureType) -> StructurePoint:
 
-    swing_type = (
-        SwingType.HIGH
-        if structure in (
-            StructureType.HIGHER_HIGH,
-            StructureType.LOWER_HIGH,
+    if structure in (
+        StructureType.HIGHER_HIGH,
+        StructureType.LOWER_HIGH,
+    ):
+        swing = Swing(
+            candle=make_candle(
+                high="3355.00",
+                low="3348.00",
+                close="3352.00",
+                minute=30,
+            ),
+            type=SwingType.HIGH,
         )
-        else SwingType.LOW
-    )
+    else:
+        swing = Swing(
+            candle=make_candle(
+                high="3345.00",
+                low="3340.00",
+                close="3342.00",
+                minute=45,
+            ),
+            type=SwingType.LOW,
+        )
 
     return StructurePoint(
         structure=structure,
-        swing=Swing(
-            timeframe=Timeframe.M5,
-            type=swing_type,
-            price=Price(
-                instrument=Instrument(
-                    code="XAUUSD",
-                    name="Gold Spot",
-                ),
-                amount=Decimal("3350.50"),
-                time=Time(
-                    datetime(
-                        2026,
-                        6,
-                        29,
-                        9,
-                        30,
-                        tzinfo=timezone.utc,
-                    )
-                ),
-            ),
-        ),
+        swing=swing,
     )
 
 
@@ -71,7 +97,6 @@ def make_market_structure() -> MarketStructure:
 
 
 def test_empty_market_returns_unknown() -> None:
-
     analyzer = TrendAnalyzer()
 
     trend = analyzer.analyze(
@@ -82,20 +107,10 @@ def test_empty_market_returns_unknown() -> None:
 
 
 def test_bullish_market() -> None:
-
     market = make_market_structure()
 
-    market.append(
-        make_point(
-            StructureType.HIGHER_HIGH
-        )
-    )
-
-    market.append(
-        make_point(
-            StructureType.HIGHER_LOW
-        )
-    )
+    market.append(make_point(StructureType.HIGHER_HIGH))
+    market.append(make_point(StructureType.HIGHER_LOW))
 
     analyzer = TrendAnalyzer()
 
@@ -105,20 +120,10 @@ def test_bullish_market() -> None:
 
 
 def test_bearish_market() -> None:
-
     market = make_market_structure()
 
-    market.append(
-        make_point(
-            StructureType.LOWER_HIGH
-        )
-    )
-
-    market.append(
-        make_point(
-            StructureType.LOWER_LOW
-        )
-    )
+    market.append(make_point(StructureType.LOWER_HIGH))
+    market.append(make_point(StructureType.LOWER_LOW))
 
     analyzer = TrendAnalyzer()
 
@@ -128,20 +133,10 @@ def test_bearish_market() -> None:
 
 
 def test_sideways_market() -> None:
-
     market = make_market_structure()
 
-    market.append(
-        make_point(
-            StructureType.HIGHER_HIGH
-        )
-    )
-
-    market.append(
-        make_point(
-            StructureType.LOWER_LOW
-        )
-    )
+    market.append(make_point(StructureType.HIGHER_HIGH))
+    market.append(make_point(StructureType.LOWER_LOW))
 
     analyzer = TrendAnalyzer()
 
@@ -151,7 +146,6 @@ def test_sideways_market() -> None:
 
 
 def test_invalid_subject() -> None:
-
     analyzer = TrendAnalyzer()
 
     with pytest.raises(TypeError):

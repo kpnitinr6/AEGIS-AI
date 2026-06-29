@@ -9,9 +9,9 @@ from decimal import Decimal
 import pytest
 
 from backend.domain import (
+    Candle,
     Instrument,
     MarketStructure,
-    Price,
     StructurePoint,
     StructureType,
     Swing,
@@ -23,6 +23,31 @@ from backend.domain import (
 )
 
 
+def make_candle() -> Candle:
+    return Candle(
+        instrument=Instrument(
+            code="XAUUSD",
+            name="Gold Spot",
+        ),
+        timeframe=Timeframe.M5,
+        open_time=Time(
+            datetime(
+                2026,
+                6,
+                29,
+                9,
+                30,
+                tzinfo=timezone.utc,
+            )
+        ),
+        open=Decimal("3350.00"),
+        high=Decimal("3355.00"),
+        low=Decimal("3348.00"),
+        close=Decimal("3352.00"),
+        tick_volume=1000,
+    )
+
+
 def make_market_structure() -> MarketStructure:
     market = MarketStructure(
         instrument=Instrument(
@@ -32,32 +57,15 @@ def make_market_structure() -> MarketStructure:
         timeframe=Timeframe.M5,
     )
 
-    point = StructurePoint(
-        structure=StructureType.HIGHER_HIGH,
-        swing=Swing(
-            timeframe=Timeframe.M5,
-            type=SwingType.HIGH,
-            price=Price(
-                instrument=Instrument(
-                    code="XAUUSD",
-                    name="Gold Spot",
-                ),
-                amount=Decimal("3350.50"),
-                time=Time(
-                    datetime(
-                        2026,
-                        6,
-                        29,
-                        9,
-                        30,
-                        tzinfo=timezone.utc,
-                    )
-                ),
+    market.append(
+        StructurePoint(
+            structure=StructureType.HIGHER_HIGH,
+            swing=Swing(
+                candle=make_candle(),
+                type=SwingType.HIGH,
             ),
-        ),
+        )
     )
-
-    market.append(point)
 
     return market
 

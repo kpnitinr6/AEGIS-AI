@@ -1,16 +1,16 @@
 """
 Tests for the Swing domain object.
 """
-from datetime import datetime, timezone
-from dataclasses import FrozenInstanceError
-from decimal import Decimal
 
+from dataclasses import FrozenInstanceError
+from datetime import datetime, timezone
+from decimal import Decimal
 
 import pytest
 
 from backend.domain import (
+    Candle,
     Instrument,
-    Price,
     Swing,
     SwingType,
     Time,
@@ -18,15 +18,14 @@ from backend.domain import (
 )
 
 
-def make_price() -> Price:
-    """Create a valid Price object for testing."""
-    return Price(
+def make_candle() -> Candle:
+    return Candle(
         instrument=Instrument(
             code="XAUUSD",
             name="Gold Spot",
         ),
-        amount=Decimal("3350.50"),
-        time=Time(
+        timeframe=Timeframe.M5,
+        open_time=Time(
             datetime(
                 2026,
                 6,
@@ -36,64 +35,59 @@ def make_price() -> Price:
                 tzinfo=timezone.utc,
             )
         ),
+        open=Decimal("3350.00"),
+        high=Decimal("3355.00"),
+        low=Decimal("3348.00"),
+        close=Decimal("3352.00"),
+        tick_volume=1000,
     )
 
 
 def test_create_valid_swing() -> None:
-    """A valid Swing should be created successfully."""
-
     swing = Swing(
-        timeframe=Timeframe.M5,
+        candle=make_candle(),
         type=SwingType.HIGH,
-        price=make_price(),
     )
 
-    assert swing.timeframe == Timeframe.M5
     assert swing.type == SwingType.HIGH
-    assert swing.price.amount == Decimal("3350.50")
+    assert swing.candle.high == Decimal("3355.00")
 
 
-def test_invalid_timeframe() -> None:
-    """Swing should reject an invalid timeframe."""
-
+def test_invalid_candle() -> None:
     with pytest.raises(TypeError):
         Swing(
-            timeframe="M5",
+            candle="not a candle",
             type=SwingType.HIGH,
-            price=make_price(),
         )
 
 
-def test_invalid_swing_type() -> None:
-    """Swing should reject an invalid swing type."""
-
+def test_invalid_type() -> None:
     with pytest.raises(TypeError):
         Swing(
-            timeframe=Timeframe.M5,
+            candle=make_candle(),
             type="HIGH",
-            price=make_price(),
-        )
-
-
-def test_invalid_price() -> None:
-    """Swing should reject an invalid Price."""
-
-    with pytest.raises(TypeError):
-        Swing(
-            timeframe=Timeframe.M5,
-            type=SwingType.HIGH,
-            price="3350.50",
         )
 
 
 def test_swing_is_immutable() -> None:
-    """Swing must be immutable."""
-
     swing = Swing(
-        timeframe=Timeframe.M5,
+        candle=make_candle(),
         type=SwingType.HIGH,
-        price=make_price(),
     )
 
     with pytest.raises(FrozenInstanceError):
         swing.type = SwingType.LOW
+
+def test_swing_references_original_candle() -> None:
+
+    candle = make_candle()
+
+    swing = Swing(
+
+        candle=candle,
+
+        type=SwingType.HIGH,
+
+    )
+
+    assert swing.candle is candle

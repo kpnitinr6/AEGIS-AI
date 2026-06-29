@@ -9,13 +9,26 @@ from enum import Enum
 
 class EvidenceSource(str, Enum):
     """
-    Identifies the domain that produced a piece of evidence.
+    Identifies the market event or analytical method
+    that produced a piece of evidence.
     """
 
-    STRUCTURE = "STRUCTURE"
-    LIQUIDITY = "LIQUIDITY"
+    BREAK_OF_STRUCTURE = "BREAK_OF_STRUCTURE"
+
+    CHANGE_OF_CHARACTER = "CHANGE_OF_CHARACTER"
+
+    MARKET_SHIFT = "MARKET_SHIFT"
+
+    LIQUIDITY_SWEEP = "LIQUIDITY_SWEEP"
+
     ORDER_BLOCK = "ORDER_BLOCK"
+
     FAIR_VALUE_GAP = "FAIR_VALUE_GAP"
+
+    TREND = "TREND"
+
     DOW_THEORY = "DOW_THEORY"
+
     WYCKOFF = "WYCKOFF"
+
     VOLUME = "VOLUME"
