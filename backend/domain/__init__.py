@@ -14,6 +14,11 @@ from .time import Time
 from .timeframe import Timeframe
 from .swing import Swing
 from .swing_type import SwingType
+from .structure_point import StructurePoint
+from .structure_type import StructureType
+from .market_structure import MarketStructure
+from .trend import Trend
+from .trend_state import TrendState
 
 __all__ = [
     "Candle",
@@ -23,5 +28,10 @@ __all__ = [
     "Time",
     "Timeframe"
     "Swing",
-    "SwingType",
+    "SwingType"
+    "MarketStructure"
+    "Trend",
+    "TrendState",
+    "StructurePoint"
+    "StructureType",
 ]
