@@ -27,8 +27,11 @@ class EvidenceSource(str, Enum):
 
     TREND = "TREND"
 
+    STRUCTURE = "STRUCTURE"
+
     DOW_THEORY = "DOW_THEORY"
 
     WYCKOFF = "WYCKOFF"
 
     VOLUME = "VOLUME"
+
