@@ -7,6 +7,7 @@ Transforms raw market data into a MarketContext.
 """
 
 from __future__ import annotations
+from backend.services.trend_analyzer import TrendAnalyzer
 
 from backend.domain import (
     Candle,
@@ -34,9 +35,10 @@ class MarketAnalyzer:
     """
 
     def __init__(
-        self,
-        swing_detector: SwingDetector | None = None,
-        structure_detector: StructureDetector | None = None,
+            self,
+            swing_detector: SwingDetector | None = None,
+            structure_detector: StructureDetector | None = None,
+            trend_analyzer: TrendAnalyzer | None = None,
     ) -> None:
 
         self._swing_detector = (
@@ -49,6 +51,12 @@ class MarketAnalyzer:
             structure_detector
             if structure_detector is not None
             else StructureDetector()
+        )
+
+        self._trend_analyzer = (
+            trend_analyzer
+            if trend_analyzer is not None
+            else TrendAnalyzer()
         )
 
     def analyze(
@@ -72,11 +80,17 @@ class MarketAnalyzer:
 
         market_structure = None
 
+        trend = None
+
         if swings:
             market_structure = (
                 self._structure_detector.detect(
                     swings,
                 )
+            )
+
+            trend = self._trend_analyzer.analyze(
+                market_structure,
             )
 
         first = candles[0]
@@ -85,4 +99,5 @@ class MarketAnalyzer:
             instrument=first.instrument,
             timeframe=first.timeframe,
             market_structure=market_structure,
+            trend=trend,
         )
