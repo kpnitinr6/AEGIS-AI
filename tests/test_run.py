@@ -3,6 +3,9 @@ Tests for the AEGIS application runner.
 """
 
 from backend.adapters.fake import FakeMarketAdapter
+from backend.application import (
+    ApplicationRunResult,
+)
 from backend.application.aegis import AEGIS
 from backend.application.application_service import (
     ApplicationService,
@@ -46,7 +49,7 @@ def test_runner_can_present_process_result() -> None:
 
     presenter = ProcessResultPresenter()
 
-    result = application.run(
+    run_result = application.run(
         instrument=Instrument(
             code="XAUUSD",
             name="Gold Spot",
@@ -55,9 +58,17 @@ def test_runner_can_present_process_result() -> None:
         candle_count=200,
     )
 
+    assert isinstance(
+        run_result,
+        ApplicationRunResult,
+    )
+
     output = presenter.present(
-        result,
+        run_result.context,
+        run_result.result,
     )
 
     assert isinstance(output, str)
     assert len(output) > 0
+    assert "XAUUSD" in output
+    assert "M5" in output

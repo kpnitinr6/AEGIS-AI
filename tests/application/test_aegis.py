@@ -5,6 +5,9 @@ Tests for the AEGIS application facade.
 from datetime import datetime, timezone
 from decimal import Decimal
 
+from backend.application import (
+    ApplicationRunResult,
+)
 from backend.application.aegis import AEGIS
 from backend.application.decision_engine import DecisionEngine
 from backend.application.execution.paper_execution_engine import (
@@ -21,6 +24,7 @@ from backend.domain import (
     Candle,
     CandleSeries,
     Instrument,
+    MarketContext,
     ProcessResult,
     Time,
     Timeframe,
@@ -90,7 +94,7 @@ def make_candle_series() -> CandleSeries:
     return series
 
 
-def test_process_returns_process_result() -> None:
+def test_process_returns_application_run_result() -> None:
 
     aegis = AEGIS(
         market_analyzer=MarketAnalyzer(),
@@ -103,15 +107,36 @@ def test_process_returns_process_result() -> None:
         trade_intent_factory=TradeIntentFactory(),
     )
 
-    result = aegis.process(
+    run_result = aegis.process(
         make_candle_series(),
     )
 
     assert isinstance(
-        result,
+        run_result,
+        ApplicationRunResult,
+    )
+
+    assert isinstance(
+        run_result.context,
+        MarketContext,
+    )
+
+    assert isinstance(
+        run_result.result,
         ProcessResult,
     )
 
-    assert result.decision.action.name == "NO_TRADE"
-    assert result.risk_assessment.approved is False
-    assert result.execution_result is None
+    assert (
+        run_result.result.decision.action.name
+        == "NO_TRADE"
+    )
+
+    assert (
+        run_result.result.risk_assessment.approved
+        is False
+    )
+
+    assert (
+        run_result.result.execution_result
+        is None
+    )

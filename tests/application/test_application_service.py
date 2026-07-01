@@ -3,6 +3,9 @@ Tests for the ApplicationService.
 """
 
 from backend.adapters.fake import FakeMarketAdapter
+from backend.application import (
+    ApplicationRunResult,
+)
 from backend.application.aegis import AEGIS
 from backend.application.application_service import (
     ApplicationService,
@@ -18,6 +21,7 @@ from backend.application.trade_intent_factory import (
 )
 from backend.domain import (
     Instrument,
+    MarketContext,
     ProcessResult,
     Timeframe,
 )
@@ -42,7 +46,7 @@ def test_application_service_runs_aegis() -> None:
         ),
     )
 
-    result = application.run(
+    run_result = application.run(
         instrument=Instrument(
             code="XAUUSD",
             name="Gold Spot",
@@ -52,6 +56,16 @@ def test_application_service_runs_aegis() -> None:
     )
 
     assert isinstance(
-        result,
+        run_result,
+        ApplicationRunResult,
+    )
+
+    assert isinstance(
+        run_result.context,
+        MarketContext,
+    )
+
+    assert isinstance(
+        run_result.result,
         ProcessResult,
     )

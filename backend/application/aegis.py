@@ -6,6 +6,9 @@ Application facade.
 
 from __future__ import annotations
 
+from backend.application.application_run_result import (
+    ApplicationRunResult,
+)
 from backend.application.decision_engine import DecisionEngine
 from backend.application.execution.paper_execution_engine import (
     PaperExecutionEngine,
@@ -48,7 +51,7 @@ class AEGIS:
     def process(
         self,
         candle_series: CandleSeries,
-    ) -> ProcessResult:
+    ) -> ApplicationRunResult:
 
         context = self._market_analyzer.analyze(
             candle_series,
@@ -79,8 +82,13 @@ class AEGIS:
                 )
             )
 
-        return ProcessResult(
+        process_result = ProcessResult(
             decision=decision,
             risk_assessment=assessment,
             execution_result=execution_result,
+        )
+
+        return ApplicationRunResult(
+            context=context,
+            result=process_result,
         )

@@ -51,7 +51,7 @@ def main() -> None:
 
     presenter = ProcessResultPresenter()
 
-    result = application.run(
+    run_result = application.run(
         instrument=Instrument(
             code="XAUUSD",
             name="Gold Spot",
@@ -61,7 +61,10 @@ def main() -> None:
     )
 
     print(
-        presenter.present(result)
+        presenter.present(
+            run_result.context,
+            run_result.result,
+        )
     )
 
 

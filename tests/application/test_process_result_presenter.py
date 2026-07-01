@@ -14,7 +14,20 @@ from backend.domain import (
     RiskAssessment,
 )
 from backend.domain.decision import DecisionAction
+from backend.domain import (
+    Instrument,
+    MarketContext,
+    Timeframe,
+)
 
+def make_context() -> MarketContext:
+    return MarketContext(
+        instrument=Instrument(
+            code="XAUUSD",
+            name="Gold Spot",
+        ),
+        timeframe=Timeframe.M5,
+    )
 
 def make_result() -> ProcessResult:
     return ProcessResult(
@@ -39,6 +52,7 @@ def test_present_returns_string() -> None:
     presenter = ProcessResultPresenter()
 
     output = presenter.present(
+        make_context(),
         make_result(),
     )
 
@@ -47,6 +61,8 @@ def test_present_returns_string() -> None:
         str,
     )
 
+    assert "XAUUSD" in output
+    assert "M5" in output
     assert "BUY" in output
     assert "0.85" in output
     assert "Risk accepted." in output
