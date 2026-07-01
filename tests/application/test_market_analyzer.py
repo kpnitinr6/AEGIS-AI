@@ -51,6 +51,7 @@ def test_market_analyzer_returns_market_context() -> None:
     context = analyzer.analyze(
         candles=[
             make_candle(),
+            make_candle(),
         ]
     )
 
