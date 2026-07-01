@@ -46,10 +46,12 @@ class AEGIS:
         )
 
     def process(
-        self,
-        context: MarketContext,
+            self,
+            candles: list[Candle],
     ) -> ProcessResult:
-
+        context = self._market_analyzer.analyze(
+            candles,
+        )
         decision = self._decision_engine.decide(
             context,
         )

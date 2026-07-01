@@ -2,22 +2,26 @@
 Tests for the AEGIS application facade.
 """
 
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+
 from backend.application.aegis import AEGIS
 from backend.application.decision_engine import DecisionEngine
 from backend.application.execution.paper_execution_engine import (
     PaperExecutionEngine,
 )
+from backend.application.market_analyzer import (
+    MarketAnalyzer,
+)
 from backend.application.risk_engine import RiskEngine
 from backend.application.trade_intent_factory import (
     TradeIntentFactory,
 )
-from backend.application.market_analyzer import (
-    MarketAnalyzer,
-)
 from backend.domain import (
+    Candle,
     Instrument,
-    MarketContext,
     ProcessResult,
+    Time,
     Timeframe,
 )
 from backend.domain.policies.majority_vote_policy import (
@@ -25,17 +29,56 @@ from backend.domain.policies.majority_vote_policy import (
 )
 
 
-def make_context() -> MarketContext:
-
-    instrument = Instrument(
+def make_instrument() -> Instrument:
+    return Instrument(
         code="XAUUSD",
         name="Gold Spot",
     )
 
-    return MarketContext(
-        instrument=instrument,
-        timeframe=Timeframe.M5,
-    )
+
+def make_candles() -> list[Candle]:
+    instrument = make_instrument()
+
+    return [
+        Candle(
+            instrument=instrument,
+            timeframe=Timeframe.M5,
+            open_time=Time(
+                datetime(
+                    2026,
+                    7,
+                    1,
+                    9,
+                    0,
+                    tzinfo=timezone.utc,
+                )
+            ),
+            open=Decimal("3300"),
+            high=Decimal("3310"),
+            low=Decimal("3290"),
+            close=Decimal("3305"),
+            tick_volume=100,
+        ),
+        Candle(
+            instrument=instrument,
+            timeframe=Timeframe.M5,
+            open_time=Time(
+                datetime(
+                    2026,
+                    7,
+                    1,
+                    9,
+                    5,
+                    tzinfo=timezone.utc,
+                )
+            ),
+            open=Decimal("3305"),
+            high=Decimal("3312"),
+            low=Decimal("3301"),
+            close=Decimal("3308"),
+            tick_volume=120,
+        ),
+    ]
 
 
 def test_process_returns_process_result() -> None:
@@ -52,7 +95,7 @@ def test_process_returns_process_result() -> None:
     )
 
     result = aegis.process(
-        make_context(),
+        make_candles(),
     )
 
     assert isinstance(
