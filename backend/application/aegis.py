@@ -11,6 +11,9 @@ from backend.application.execution.paper_execution_engine import (
     PaperExecutionEngine,
 )
 from backend.application.risk_engine import RiskEngine
+from backend.application.trade_intent_factory import (
+    TradeIntentFactory,
+)
 from backend.domain import (
     MarketContext,
     ProcessResult,
@@ -27,11 +30,15 @@ class AEGIS:
         decision_engine: DecisionEngine,
         risk_engine: RiskEngine,
         execution_engine: PaperExecutionEngine,
+        trade_intent_factory: TradeIntentFactory,
     ) -> None:
 
         self._decision_engine = decision_engine
         self._risk_engine = risk_engine
         self._execution_engine = execution_engine
+        self._trade_intent_factory = (
+            trade_intent_factory
+        )
 
     def process(
         self,
@@ -48,13 +55,18 @@ class AEGIS:
 
         execution_result = None
 
-        if assessment.approved:
+        trade_intent = (
+            self._trade_intent_factory.create(
+                context=context,
+                decision=decision,
+                assessment=assessment,
+            )
+        )
+
+        if trade_intent is not None:
             execution_result = (
                 self._execution_engine.execute(
-                    # Temporary placeholder.
-                    # We'll replace this with a proper
-                    # TradeIntent in the next story.
-                    None  # type: ignore[arg-type]
+                    trade_intent,
                 )
             )
 

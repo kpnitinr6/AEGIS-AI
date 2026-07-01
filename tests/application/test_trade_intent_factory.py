@@ -1,27 +1,31 @@
 """
-Tests for the TradeIntent domain model.
+Tests for the TradeIntentFactory.
 """
 
 from decimal import Decimal
-
+from backend.application.trade_intent_factory import (
+    TradeIntentFactory,
+)
 from backend.domain import (
+    Decision,
     Evidence,
     EvidenceDirection,
     EvidenceSource,
     Instrument,
+    MarketContext,
+    RiskAssessment,
     Timeframe,
 )
-from backend.domain.decision import (
-    Decision,
-    DecisionAction,
-)
-from backend.domain.trade_intent import TradeIntent
+from backend.domain.decision import DecisionAction
 
 
-def make_instrument() -> Instrument:
-    return Instrument(
-        code="XAUUSD",
-        name="Gold Spot",
+def make_context() -> MarketContext:
+    return MarketContext(
+        instrument=Instrument(
+            code="XAUUSD",
+            name="Gold Spot",
+        ),
+        timeframe=Timeframe.M5,
     )
 
 
@@ -39,57 +43,36 @@ def make_decision() -> Decision:
     )
 
 
-def test_trade_intent_contains_decision() -> None:
+def test_factory_creates_trade_intent() -> None:
 
-    decision = make_decision()
+    factory = TradeIntentFactory()
 
-    intent = TradeIntent(
-        decision=decision,
-        instrument=make_instrument(),
-        timeframe=Timeframe.M5,
+    intent = factory.create(
+        context=make_context(),
+        decision=make_decision(),
+        assessment=RiskAssessment(
+            approved=True,
+            reason="Risk accepted.",
+        ),
     )
 
-    assert intent.decision == decision
+    assert intent is not None
     assert intent.instrument.code == "XAUUSD"
     assert intent.timeframe == Timeframe.M5
-
-
-def test_trade_intent_exposes_decision_action() -> None:
-
-    intent = TradeIntent(
-        decision=make_decision(),
-        instrument=make_instrument(),
-        timeframe=Timeframe.M5,
-    )
-
     assert intent.decision.action == DecisionAction.BUY
 
 
-def test_trade_intent_preserves_confidence() -> None:
+def test_factory_returns_none_when_rejected() -> None:
 
-    decision = make_decision()
+    factory = TradeIntentFactory()
 
-    intent = TradeIntent(
-        decision=decision,
-        instrument=make_instrument(),
-        timeframe=Timeframe.M5,
+    intent = factory.create(
+        context=make_context(),
+        decision=make_decision(),
+        assessment=RiskAssessment(
+            approved=False,
+            reason="Risk rejected.",
+        ),
     )
 
-    assert intent.decision.confidence == Decimal("1.00")
-
-
-def test_trade_intent_preserves_evidence() -> None:
-
-    decision = make_decision()
-
-    intent = TradeIntent(
-        decision=decision,
-        instrument=make_instrument(),
-        timeframe=Timeframe.M5,
-    )
-
-    assert len(intent.decision.evidence) == 1
-    assert (
-        intent.decision.evidence[0].reason
-        == "Bullish structure."
-    )
+    assert intent is None

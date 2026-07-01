@@ -1,75 +1,38 @@
 """
-Tests for the TradeIntentFactory.
+AEGIS AI
+
+Trade Intent Factory.
 """
 
-from decimal import Decimal
+from __future__ import annotations
+
 from backend.domain import (
     Decision,
-    Evidence,
-    EvidenceDirection,
-    EvidenceSource,
-    Instrument,
     MarketContext,
     RiskAssessment,
-    Timeframe,
+    TradeIntent,
 )
-from backend.domain.decision import DecisionAction
 
 
-def make_context() -> MarketContext:
-    return MarketContext(
-        instrument=Instrument(
-            code="XAUUSD",
-            name="Gold Spot",
-        ),
-        timeframe=Timeframe.M5,
-    )
+class TradeIntentFactory:
+    """
+    Creates TradeIntent objects after
+    risk approval.
+    """
 
+    def create(
+        self,
+        *,
+        context: MarketContext,
+        decision: Decision,
+        assessment: RiskAssessment,
+    ) -> TradeIntent | None:
 
-def make_decision() -> Decision:
-    return Decision(
-        action=DecisionAction.BUY,
-        confidence=Decimal("1.00"),
-        evidence=[
-            Evidence(
-                source=EvidenceSource.STRUCTURE,
-                direction=EvidenceDirection.BULLISH,
-                reason="Bullish structure.",
-            )
-        ],
-    )
+        if not assessment.approved:
+            return None
 
-
-def test_factory_creates_trade_intent() -> None:
-
-    factory = TradeIntentFactory()
-
-    intent = factory.create(
-        context=make_context(),
-        decision=make_decision(),
-        assessment=RiskAssessment(
-            approved=True,
-            reason="Risk accepted.",
-        ),
-    )
-
-    assert intent is not None
-    assert intent.instrument.code == "XAUUSD"
-    assert intent.timeframe == Timeframe.M5
-    assert intent.decision.action == DecisionAction.BUY
-
-
-def test_factory_returns_none_when_rejected() -> None:
-
-    factory = TradeIntentFactory()
-
-    intent = factory.create(
-        context=make_context(),
-        decision=make_decision(),
-        assessment=RiskAssessment(
-            approved=False,
-            reason="Risk rejected.",
-        ),
-    )
-
-    assert intent is None
+        return TradeIntent(
+            decision=decision,
+            instrument=context.instrument,
+            timeframe=context.timeframe,
+        )

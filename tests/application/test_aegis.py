@@ -2,21 +2,19 @@
 Tests for the AEGIS application facade.
 """
 
-from decimal import Decimal
-from datetime import datetime, timezone
-
 from backend.application.aegis import AEGIS
 from backend.application.decision_engine import DecisionEngine
 from backend.application.execution.paper_execution_engine import (
     PaperExecutionEngine,
 )
 from backend.application.risk_engine import RiskEngine
+from backend.application.trade_intent_factory import (
+    TradeIntentFactory,
+)
 from backend.domain import (
-    Candle,
     Instrument,
     MarketContext,
     ProcessResult,
-    Time,
     Timeframe,
 )
 from backend.domain.policies.majority_vote_policy import (
@@ -34,25 +32,6 @@ def make_context() -> MarketContext:
     return MarketContext(
         instrument=instrument,
         timeframe=Timeframe.M5,
-        latest_candle=Candle(
-            instrument=instrument,
-            timeframe=Timeframe.M5,
-            open_time=Time(
-                datetime(
-                    2026,
-                    7,
-                    1,
-                    9,
-                    0,
-                    tzinfo=timezone.utc,
-                )
-            ),
-            open=Decimal("3300"),
-            high=Decimal("3310"),
-            low=Decimal("3290"),
-            close=Decimal("3305"),
-            tick_volume=100,
-        ),
     )
 
 
@@ -65,6 +44,7 @@ def test_process_returns_process_result() -> None:
         ),
         risk_engine=RiskEngine(),
         execution_engine=PaperExecutionEngine(),
+        trade_intent_factory=TradeIntentFactory(),
     )
 
     result = aegis.process(
@@ -76,11 +56,6 @@ def test_process_returns_process_result() -> None:
         ProcessResult,
     )
 
-    assert (
-        result.decision.action.name
-        == "NO_TRADE"
-    )
-
+    assert result.decision.action.name == "NO_TRADE"
     assert result.risk_assessment.approved is False
-
     assert result.execution_result is None
