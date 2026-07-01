@@ -11,6 +11,9 @@ from backend.application.risk_engine import RiskEngine
 from backend.application.trade_intent_factory import (
     TradeIntentFactory,
 )
+from backend.application.market_analyzer import (
+    MarketAnalyzer,
+)
 from backend.domain import (
     Instrument,
     MarketContext,
@@ -38,6 +41,7 @@ def make_context() -> MarketContext:
 def test_process_returns_process_result() -> None:
 
     aegis = AEGIS(
+        market_analyzer=MarketAnalyzer(),
         decision_engine=DecisionEngine(
             reasoners=[],
             policy=MajorityVotePolicy(),

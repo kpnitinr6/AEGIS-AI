@@ -14,6 +14,10 @@ from backend.application.risk_engine import RiskEngine
 from backend.application.trade_intent_factory import (
     TradeIntentFactory,
 )
+from backend.application.market_analyzer import (
+    MarketAnalyzer,
+)
+
 from backend.domain import (
     MarketContext,
     ProcessResult,
@@ -26,13 +30,14 @@ class AEGIS:
     """
 
     def __init__(
-        self,
-        decision_engine: DecisionEngine,
-        risk_engine: RiskEngine,
-        execution_engine: PaperExecutionEngine,
-        trade_intent_factory: TradeIntentFactory,
+            self,
+            market_analyzer: MarketAnalyzer,
+            decision_engine: DecisionEngine,
+            risk_engine: RiskEngine,
+            execution_engine: PaperExecutionEngine,
+            trade_intent_factory: TradeIntentFactory,
     ) -> None:
-
+        self._market_analyzer = market_analyzer
         self._decision_engine = decision_engine
         self._risk_engine = risk_engine
         self._execution_engine = execution_engine
