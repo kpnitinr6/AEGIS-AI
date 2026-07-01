@@ -24,6 +24,14 @@ class CandleSeries:
         """Add a completed candle."""
         self._candles.append(candle)
 
+    def first(self) -> Candle:
+        """Return the first candle."""
+
+        if not self._candles:
+            raise ValueError("CandleSeries is empty")
+
+        return self._candles[0]
+
     def latest(self) -> Candle:
         """Return the most recent candle."""
         if not self._candles:

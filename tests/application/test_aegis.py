@@ -2,7 +2,7 @@
 Tests for the AEGIS application facade.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from backend.application.aegis import AEGIS
@@ -19,6 +19,7 @@ from backend.application.trade_intent_factory import (
 )
 from backend.domain import (
     Candle,
+    CandleSeries,
     Instrument,
     ProcessResult,
     Time,
@@ -36,10 +37,13 @@ def make_instrument() -> Instrument:
     )
 
 
-def make_candles() -> list[Candle]:
+def make_candle_series() -> CandleSeries:
+
     instrument = make_instrument()
 
-    return [
+    series = CandleSeries()
+
+    series.add(
         Candle(
             instrument=instrument,
             timeframe=Timeframe.M5,
@@ -58,7 +62,10 @@ def make_candles() -> list[Candle]:
             low=Decimal("3290"),
             close=Decimal("3305"),
             tick_volume=100,
-        ),
+        )
+    )
+
+    series.add(
         Candle(
             instrument=instrument,
             timeframe=Timeframe.M5,
@@ -77,8 +84,10 @@ def make_candles() -> list[Candle]:
             low=Decimal("3301"),
             close=Decimal("3308"),
             tick_volume=120,
-        ),
-    ]
+        )
+    )
+
+    return series
 
 
 def test_process_returns_process_result() -> None:
@@ -95,7 +104,7 @@ def test_process_returns_process_result() -> None:
     )
 
     result = aegis.process(
-        make_candles(),
+        make_candle_series(),
     )
 
     assert isinstance(

@@ -8,6 +8,7 @@ from decimal import Decimal
 from backend.application.market_analyzer import MarketAnalyzer
 from backend.domain import (
     Candle,
+    CandleSeries,
     Instrument,
     MarketContext,
     Time,
@@ -44,15 +45,22 @@ def make_candle() -> Candle:
     )
 
 
+def make_candle_series() -> CandleSeries:
+
+    series = CandleSeries()
+
+    series.add(make_candle())
+    series.add(make_candle())
+
+    return series
+
+
 def test_market_analyzer_returns_market_context() -> None:
 
     analyzer = MarketAnalyzer()
 
     context = analyzer.analyze(
-        candles=[
-            make_candle(),
-            make_candle(),
-        ]
+        make_candle_series(),
     )
 
     assert isinstance(

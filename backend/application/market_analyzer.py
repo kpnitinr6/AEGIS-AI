@@ -7,10 +7,10 @@ Transforms raw market data into a MarketContext.
 """
 
 from __future__ import annotations
+
 from backend.services.trend_analyzer import TrendAnalyzer
 
 from backend.domain import (
-    Candle,
     CandleSeries,
     MarketContext,
 )
@@ -24,21 +24,19 @@ class MarketAnalyzer:
     """
     Builds a MarketContext from raw market data.
 
-    Version 2
-
     Responsibilities:
     - Validate input.
-    - Convert candles into a CandleSeries.
     - Detect swings.
     - Detect market structure.
+    - Analyze trend.
     - Assemble a MarketContext.
     """
 
     def __init__(
-            self,
-            swing_detector: SwingDetector | None = None,
-            structure_detector: StructureDetector | None = None,
-            trend_analyzer: TrendAnalyzer | None = None,
+        self,
+        swing_detector: SwingDetector | None = None,
+        structure_detector: StructureDetector | None = None,
+        trend_analyzer: TrendAnalyzer | None = None,
     ) -> None:
 
         self._swing_detector = (
@@ -61,25 +59,19 @@ class MarketAnalyzer:
 
     def analyze(
         self,
-        candles: list[Candle],
+        candle_series: CandleSeries,
     ) -> MarketContext:
 
-        if len(candles) < 2:
+        if len(candle_series) < 2:
             raise ValueError(
                 "at least two candles are required"
             )
 
-        series = CandleSeries()
-
-        for candle in candles:
-            series.add(candle)
-
         swings = self._swing_detector.detect(
-            series,
+            candle_series,
         )
 
         market_structure = None
-
         trend = None
 
         if swings:
@@ -93,7 +85,7 @@ class MarketAnalyzer:
                 market_structure,
             )
 
-        first = candles[0]
+        first = candle_series.first()
 
         return MarketContext(
             instrument=first.instrument,

@@ -10,16 +10,15 @@ from backend.application.decision_engine import DecisionEngine
 from backend.application.execution.paper_execution_engine import (
     PaperExecutionEngine,
 )
+from backend.application.market_analyzer import (
+    MarketAnalyzer,
+)
 from backend.application.risk_engine import RiskEngine
 from backend.application.trade_intent_factory import (
     TradeIntentFactory,
 )
-from backend.application.market_analyzer import (
-    MarketAnalyzer,
-)
-
 from backend.domain import (
-    MarketContext,
+    CandleSeries,
     ProcessResult,
 )
 
@@ -30,13 +29,14 @@ class AEGIS:
     """
 
     def __init__(
-            self,
-            market_analyzer: MarketAnalyzer,
-            decision_engine: DecisionEngine,
-            risk_engine: RiskEngine,
-            execution_engine: PaperExecutionEngine,
-            trade_intent_factory: TradeIntentFactory,
+        self,
+        market_analyzer: MarketAnalyzer,
+        decision_engine: DecisionEngine,
+        risk_engine: RiskEngine,
+        execution_engine: PaperExecutionEngine,
+        trade_intent_factory: TradeIntentFactory,
     ) -> None:
+
         self._market_analyzer = market_analyzer
         self._decision_engine = decision_engine
         self._risk_engine = risk_engine
@@ -46,12 +46,14 @@ class AEGIS:
         )
 
     def process(
-            self,
-            candles: list[Candle],
+        self,
+        candle_series: CandleSeries,
     ) -> ProcessResult:
+
         context = self._market_analyzer.analyze(
-            candles,
+            candle_series,
         )
+
         decision = self._decision_engine.decide(
             context,
         )
