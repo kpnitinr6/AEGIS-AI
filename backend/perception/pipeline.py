@@ -3,16 +3,16 @@ AEGIS AI
 
 Perception Pipeline.
 
-Coordinates all perception detectors and produces
-market facts from raw market data.
+Coordinates perception detectors and produces a
+single immutable PerceptionResult from raw market
+data.
 """
 
 from __future__ import annotations
 
-from backend.domain import (
-    CandleSeries,
-    MarketStructure,
-    Swing,
+from backend.domain import CandleSeries
+from backend.perception.perception_result import (
+    PerceptionResult,
 )
 from backend.perception.structure_detector import (
     StructureDetector,
@@ -26,17 +26,24 @@ class PerceptionPipeline:
     """
     Coordinates the perception layer.
 
-    Responsibilities
-    ----------------
-    - Detect swings.
-    - Detect market structure.
+    Version 1
 
-    Future versions will also detect:
-    - Break of Structure
-    - Change of Character
-    - Liquidity Sweeps
-    - Order Blocks
-    - Fair Value Gaps
+    Pipeline:
+
+        CandleSeries
+            ↓
+        SwingDetector
+            ↓
+        StructureDetector
+            ↓
+        PerceptionResult
+
+    Future versions will extend the pipeline with:
+
+    - Break Of Structure
+    - Change Of Character
+    - Liquidity Sweep
+    - Order Block
     """
 
     def __init__(
@@ -57,20 +64,33 @@ class PerceptionPipeline:
             else StructureDetector()
         )
 
-    def detect_swings(
+    def detect(
         self,
         candle_series: CandleSeries,
-    ) -> list[Swing]:
+    ) -> PerceptionResult:
 
-        return self._swing_detector.detect(
+        if not isinstance(
+            candle_series,
+            CandleSeries,
+        ):
+            raise TypeError(
+                "candle_series must be a CandleSeries"
+            )
+
+        swings = self._swing_detector.detect(
             candle_series,
         )
 
-    def detect_market_structure(
-        self,
-        swings: list[Swing],
-    ) -> MarketStructure:
+        if not swings:
+            return PerceptionResult()
 
-        return self._structure_detector.detect(
-            swings,
+        market_structure = (
+            self._structure_detector.detect(
+                swings,
+            )
+        )
+
+        return PerceptionResult(
+            swings=swings,
+            market_structure=market_structure,
         )

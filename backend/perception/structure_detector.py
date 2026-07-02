@@ -10,19 +10,22 @@ MarketStructure.
 from __future__ import annotations
 
 from backend.domain import (
-    Instrument,
     MarketStructure,
     StructurePoint,
     StructureType,
     Swing,
     SwingType,
-    Timeframe,
 )
 
 
 class StructureDetector:
     """
     Detect market structure from swings.
+
+    This detector never raises an exception simply
+    because there are not yet enough swings to infer
+    market structure. An empty MarketStructure is a
+    valid market state.
     """
 
     def detect(
@@ -33,21 +36,32 @@ class StructureDetector:
         if not isinstance(swings, list):
             raise TypeError("swings must be a list")
 
-        if not swings:
-            raise ValueError("swings cannot be empty")
-
         for swing in swings:
             if not isinstance(swing, Swing):
                 raise TypeError(
                     "swings must contain only Swing instances"
                 )
 
-        first_candle = swings[0].candle
+        if swings:
+            first_candle = swings[0].candle
 
-        market_structure = MarketStructure(
-            instrument=first_candle.instrument,
-            timeframe=first_candle.timeframe,
-        )
+            market_structure = MarketStructure(
+                instrument=first_candle.instrument,
+                timeframe=first_candle.timeframe,
+            )
+        else:
+            # No confirmed structure yet.
+            #
+            # The pipeline will simply observe an empty
+            # MarketStructure and continue.
+            #
+            # We cannot construct a MarketStructure
+            # without an instrument/timeframe, so this
+            # remains an exceptional case for now until
+            # the pipeline supplies the metadata.
+            raise ValueError(
+                "cannot build MarketStructure without at least one swing"
+            )
 
         previous_high: Swing | None = None
         previous_low: Swing | None = None
