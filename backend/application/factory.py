@@ -24,6 +24,15 @@ from backend.application.trade_intent_factory import (
 from backend.domain.policies.weighted_decision_policy import (
     WeightedDecisionPolicy,
 )
+
+from backend.reasoning import (
+    BOSReasoner,
+    CHOCHReasoner,
+    LiquiditySweepReasoner,
+    OrderBlockReasoner,
+    StructureReasoner,
+    TrendReasoner,
+)
 from backend.reasoning import (
     BOSReasoner,
     CHOCHReasoner,
@@ -48,6 +57,7 @@ def create_aegis() -> AEGIS:
                 BOSReasoner(),
                 CHOCHReasoner(),
                 LiquiditySweepReasoner(),
+                OrderBlockReasoner(),
             ],
             policy=WeightedDecisionPolicy(),
         ),
