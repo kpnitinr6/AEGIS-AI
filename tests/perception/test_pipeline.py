@@ -169,3 +169,16 @@ def test_detect_returns_change_of_character_collection() -> None:
         result.change_of_characters,
         list,
     )
+
+def test_detect_returns_liquidity_sweep_collection() -> None:
+
+    pipeline = PerceptionPipeline()
+
+    result = pipeline.detect(
+        make_series_with_swing(),
+    )
+
+    assert isinstance(
+        result.liquidity_sweeps,
+        list,
+    )

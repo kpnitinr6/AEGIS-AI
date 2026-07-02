@@ -17,6 +17,9 @@ from backend.perception.break_of_structure_detector import (
 from backend.perception.change_of_character_detector import (
     ChangeOfCharacterDetector,
 )
+from backend.perception.liquidity_sweep_detector import (
+    LiquiditySweepDetector,
+)
 from backend.perception.perception_result import (
     PerceptionResult,
 )
@@ -32,7 +35,7 @@ class PerceptionPipeline:
     """
     Coordinates the perception layer.
 
-    Version 3
+    Version 4
 
     Pipeline
 
@@ -41,12 +44,12 @@ class PerceptionPipeline:
         SwingDetector
             ↓
         StructureDetector
-            ├──────────────┐
-            ▼              ▼
-        BOS Detector   CHOCH Detector
-            └──────┬───────┘
-                   ▼
-          PerceptionResult
+            ├──────────────┬────────────────┐
+            ▼              ▼                ▼
+        BOS Detector   CHOCH Detector   Liquidity Sweep
+            └──────────────┴────────────────┘
+                           ▼
+                  PerceptionResult
     """
 
     def __init__(
@@ -58,6 +61,9 @@ class PerceptionPipeline:
         ) = None,
         change_of_character_detector: (
             ChangeOfCharacterDetector | None
+        ) = None,
+        liquidity_sweep_detector: (
+            LiquiditySweepDetector | None
         ) = None,
     ) -> None:
 
@@ -83,6 +89,12 @@ class PerceptionPipeline:
             change_of_character_detector
             if change_of_character_detector is not None
             else ChangeOfCharacterDetector()
+        )
+
+        self._liquidity_detector = (
+            liquidity_sweep_detector
+            if liquidity_sweep_detector is not None
+            else LiquiditySweepDetector()
         )
 
     def detect(
@@ -111,7 +123,7 @@ class PerceptionPipeline:
             )
         )
 
-        break_of_structures: list = []
+        break_of_structures = []
 
         bos = self._bos_detector.detect(
             market_structure,
@@ -122,7 +134,7 @@ class PerceptionPipeline:
                 bos,
             )
 
-        change_of_characters: list = []
+        change_of_characters = []
 
         choch = self._choch_detector.detect(
             market_structure,
@@ -133,9 +145,17 @@ class PerceptionPipeline:
                 choch,
             )
 
+        liquidity_sweeps = (
+            self._liquidity_detector.detect(
+                swings,
+                candle_series,
+            )
+        )
+
         return PerceptionResult(
             swings=swings,
             market_structure=market_structure,
             break_of_structures=break_of_structures,
             change_of_characters=change_of_characters,
+            liquidity_sweeps=liquidity_sweeps,
         )
