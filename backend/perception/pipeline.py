@@ -14,6 +14,9 @@ from backend.domain import CandleSeries
 from backend.perception.break_of_structure_detector import (
     BreakOfStructureDetector,
 )
+from backend.perception.change_of_character_detector import (
+    ChangeOfCharacterDetector,
+)
 from backend.perception.perception_result import (
     PerceptionResult,
 )
@@ -29,7 +32,7 @@ class PerceptionPipeline:
     """
     Coordinates the perception layer.
 
-    Version 2
+    Version 3
 
     Pipeline
 
@@ -38,10 +41,12 @@ class PerceptionPipeline:
         SwingDetector
             ↓
         StructureDetector
-            ↓
-        BreakOfStructureDetector
-            ↓
-        PerceptionResult
+            ├──────────────┐
+            ▼              ▼
+        BOS Detector   CHOCH Detector
+            └──────┬───────┘
+                   ▼
+          PerceptionResult
     """
 
     def __init__(
@@ -50,6 +55,9 @@ class PerceptionPipeline:
         structure_detector: StructureDetector | None = None,
         break_of_structure_detector: (
             BreakOfStructureDetector | None
+        ) = None,
+        change_of_character_detector: (
+            ChangeOfCharacterDetector | None
         ) = None,
     ) -> None:
 
@@ -69,6 +77,12 @@ class PerceptionPipeline:
             break_of_structure_detector
             if break_of_structure_detector is not None
             else BreakOfStructureDetector()
+        )
+
+        self._choch_detector = (
+            change_of_character_detector
+            if change_of_character_detector is not None
+            else ChangeOfCharacterDetector()
         )
 
     def detect(
@@ -97,7 +111,7 @@ class PerceptionPipeline:
             )
         )
 
-        break_of_structures = []
+        break_of_structures: list = []
 
         bos = self._bos_detector.detect(
             market_structure,
@@ -108,8 +122,20 @@ class PerceptionPipeline:
                 bos,
             )
 
+        change_of_characters: list = []
+
+        choch = self._choch_detector.detect(
+            market_structure,
+        )
+
+        if choch is not None:
+            change_of_characters.append(
+                choch,
+            )
+
         return PerceptionResult(
             swings=swings,
             market_structure=market_structure,
             break_of_structures=break_of_structures,
+            change_of_characters=change_of_characters,
         )

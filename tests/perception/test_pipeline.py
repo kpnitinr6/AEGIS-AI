@@ -157,3 +157,15 @@ def test_detect_returns_market_structure() -> None:
             result.break_of_structures,
             list,
         )
+def test_detect_returns_change_of_character_collection() -> None:
+
+    pipeline = PerceptionPipeline()
+
+    result = pipeline.detect(
+        make_series_with_swing(),
+    )
+
+    assert isinstance(
+        result.change_of_characters,
+        list,
+    )
