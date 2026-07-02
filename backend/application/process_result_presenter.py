@@ -62,6 +62,26 @@ class ProcessResultPresenter:
             f"Market Structure  : {market_structure}",
             f"Trend             : {trend}",
             "",
+            "Market Understanding",
+            "----------------------------------------",
+            (
+                "Break of Structures : "
+                f"{len(context.break_of_structures)}"
+            ),
+            (
+                "CHOCH               : "
+                f"{len(context.change_of_characters)}"
+            ),
+            (
+                "Liquidity Sweeps    : "
+                f"{len(context.liquidity_sweeps)}"
+            ),
+            (
+                "Order Blocks        : "
+                f"{len(context.order_blocks)}"
+            ),
+            "",
+            "",
             f"Decision          : {result.decision.action.name}",
             f"Confidence        : {result.decision.confidence}",
             "",

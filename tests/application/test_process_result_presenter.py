@@ -142,4 +142,10 @@ def test_present_handles_empty_evidence() -> None:
         result,
     )
 
-    assert "No supporting evidence." in output
+    assert "Market Understanding" in output
+
+    assert "Break of Structures" in output
+    assert "CHOCH" in output
+    assert "Liquidity Sweeps" in output
+    assert "Order Blocks" in output
+    assert "0" in output
