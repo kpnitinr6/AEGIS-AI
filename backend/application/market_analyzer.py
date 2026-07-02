@@ -8,15 +8,15 @@ Transforms raw market data into a MarketContext.
 
 from __future__ import annotations
 
-from backend.services.trend_analyzer import TrendAnalyzer
-
 from backend.domain import (
     CandleSeries,
     MarketContext,
 )
 from backend.perception import (
-    StructureDetector,
-    SwingDetector,
+    PerceptionPipeline,
+)
+from backend.services.trend_analyzer import (
+    TrendAnalyzer,
 )
 
 
@@ -24,31 +24,24 @@ class MarketAnalyzer:
     """
     Builds a MarketContext from raw market data.
 
-    Responsibilities:
+    Responsibilities
+    ----------------
     - Validate input.
-    - Detect swings.
-    - Detect market structure.
+    - Delegate perception to the PerceptionPipeline.
     - Analyze trend.
     - Assemble a MarketContext.
     """
 
     def __init__(
         self,
-        swing_detector: SwingDetector | None = None,
-        structure_detector: StructureDetector | None = None,
+        perception_pipeline: PerceptionPipeline | None = None,
         trend_analyzer: TrendAnalyzer | None = None,
     ) -> None:
 
-        self._swing_detector = (
-            swing_detector
-            if swing_detector is not None
-            else SwingDetector()
-        )
-
-        self._structure_detector = (
-            structure_detector
-            if structure_detector is not None
-            else StructureDetector()
+        self._perception_pipeline = (
+            perception_pipeline
+            if perception_pipeline is not None
+            else PerceptionPipeline()
         )
 
         self._trend_analyzer = (
@@ -67,22 +60,17 @@ class MarketAnalyzer:
                 "at least two candles are required"
             )
 
-        swings = self._swing_detector.detect(
-            candle_series,
+        perception = (
+            self._perception_pipeline.detect(
+                candle_series,
+            )
         )
 
-        market_structure = None
         trend = None
 
-        if swings:
-            market_structure = (
-                self._structure_detector.detect(
-                    swings,
-                )
-            )
-
+        if perception.market_structure is not None:
             trend = self._trend_analyzer.analyze(
-                market_structure,
+                perception.market_structure,
             )
 
         first = candle_series.first()
@@ -90,6 +78,18 @@ class MarketAnalyzer:
         return MarketContext(
             instrument=first.instrument,
             timeframe=first.timeframe,
-            market_structure=market_structure,
+            market_structure=perception.market_structure,
             trend=trend,
+            break_of_structures=(
+                perception.break_of_structures
+            ),
+            change_of_characters=(
+                perception.change_of_characters
+            ),
+            liquidity_sweeps=(
+                perception.liquidity_sweeps
+            ),
+            order_blocks=(
+                perception.order_blocks
+            ),
         )
