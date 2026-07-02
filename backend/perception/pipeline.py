@@ -20,6 +20,9 @@ from backend.perception.change_of_character_detector import (
 from backend.perception.liquidity_sweep_detector import (
     LiquiditySweepDetector,
 )
+from backend.perception.order_block_detector import (
+    OrderBlockDetector,
+)
 from backend.perception.perception_result import (
     PerceptionResult,
 )
@@ -35,7 +38,7 @@ class PerceptionPipeline:
     """
     Coordinates the perception layer.
 
-    Version 4
+    Version 5
 
     Pipeline
 
@@ -47,9 +50,12 @@ class PerceptionPipeline:
             ├──────────────┬────────────────┐
             ▼              ▼                ▼
         BOS Detector   CHOCH Detector   Liquidity Sweep
-            └──────────────┴────────────────┘
-                           ▼
-                  PerceptionResult
+            │
+            ▼
+     Order Block Detector
+            │
+            ▼
+      PerceptionResult
     """
 
     def __init__(
@@ -64,6 +70,9 @@ class PerceptionPipeline:
         ) = None,
         liquidity_sweep_detector: (
             LiquiditySweepDetector | None
+        ) = None,
+        order_block_detector: (
+            OrderBlockDetector | None
         ) = None,
     ) -> None:
 
@@ -95,6 +104,12 @@ class PerceptionPipeline:
             liquidity_sweep_detector
             if liquidity_sweep_detector is not None
             else LiquiditySweepDetector()
+        )
+
+        self._order_block_detector = (
+            order_block_detector
+            if order_block_detector is not None
+            else OrderBlockDetector()
         )
 
     def detect(
@@ -152,10 +167,27 @@ class PerceptionPipeline:
             )
         )
 
+        order_blocks = []
+
+        for bos in break_of_structures:
+
+            order_block = (
+                self._order_block_detector.detect(
+                    candle_series,
+                    bos,
+                )
+            )
+
+            if order_block is not None:
+                order_blocks.append(
+                    order_block,
+                )
+
         return PerceptionResult(
             swings=swings,
             market_structure=market_structure,
             break_of_structures=break_of_structures,
             change_of_characters=change_of_characters,
             liquidity_sweeps=liquidity_sweeps,
+            order_blocks=order_blocks,
         )

@@ -182,3 +182,16 @@ def test_detect_returns_liquidity_sweep_collection() -> None:
         result.liquidity_sweeps,
         list,
     )
+
+def test_detect_returns_order_block_collection() -> None:
+
+    pipeline = PerceptionPipeline()
+
+    result = pipeline.detect(
+        make_series_with_swing(),
+    )
+
+    assert isinstance(
+        result.order_blocks,
+        list,
+    )
