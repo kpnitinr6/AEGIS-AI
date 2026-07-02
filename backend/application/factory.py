@@ -21,8 +21,8 @@ from backend.application.risk_engine import RiskEngine
 from backend.application.trade_intent_factory import (
     TradeIntentFactory,
 )
-from backend.domain.policies.majority_vote_policy import (
-    MajorityVotePolicy,
+from backend.domain.policies.weighted_decision_policy import (
+    WeightedDecisionPolicy,
 )
 from backend.reasoning import (
     BOSReasoner,
@@ -49,7 +49,7 @@ def create_aegis() -> AEGIS:
                 CHOCHReasoner(),
                 LiquiditySweepReasoner(),
             ],
-            policy=MajorityVotePolicy(),
+            policy=WeightedDecisionPolicy(),
         ),
         risk_engine=RiskEngine(),
         execution_engine=PaperExecutionEngine(),

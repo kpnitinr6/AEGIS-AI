@@ -20,7 +20,10 @@ class CandleSeries:
     def __init__(self) -> None:
         self._candles: list[Candle] = []
 
-    def add(self, candle: Candle) -> None:
+    def add(
+        self,
+        candle: Candle,
+    ) -> None:
         """Add a completed candle."""
         self._candles.append(candle)
 
@@ -28,7 +31,9 @@ class CandleSeries:
         """Return the first candle."""
 
         if not self._candles:
-            raise ValueError("CandleSeries is empty")
+            raise ValueError(
+                "CandleSeries is empty"
+            )
 
         return self._candles[0]
 
@@ -36,7 +41,9 @@ class CandleSeries:
         """Return the most recent candle."""
 
         if not self._candles:
-            raise ValueError("CandleSeries is empty")
+            raise ValueError(
+                "CandleSeries is empty"
+            )
 
         return self._candles[-1]
 
@@ -50,27 +57,50 @@ class CandleSeries:
 
         return self._candles[-2]
 
+    def previous_of(
+        self,
+        candle: Candle,
+    ) -> Candle | None:
+        """
+        Return the candle immediately preceding the
+        supplied candle.
+
+        Returns None if the supplied candle is the
+        first candle in the series.
+        """
+
+        for index, current in enumerate(
+            self._candles,
+        ):
+            if current == candle:
+
+                if index == 0:
+                    return None
+
+                return self._candles[index - 1]
+
+        raise ValueError(
+            "candle does not belong to this CandleSeries"
+        )
+
     def candles_after(
         self,
         candle: Candle,
     ) -> list[Candle]:
         """
-        Return all candles occurring after the supplied candle.
-
-        Raises
-        ------
-        ValueError
-            If the supplied candle is not present in the series.
+        Return every candle occurring after the
+        supplied candle.
         """
 
-        try:
-            index = self._candles.index(candle)
-        except ValueError as exc:
-            raise ValueError(
-                "candle is not contained in this CandleSeries"
-            ) from exc
+        for index, current in enumerate(
+            self._candles,
+        ):
+            if current == candle:
+                return self._candles[index + 1 :]
 
-        return self._candles[index + 1 :]
+        raise ValueError(
+            "candle does not belong to this CandleSeries"
+        )
 
     def __len__(self) -> int:
         return len(self._candles)

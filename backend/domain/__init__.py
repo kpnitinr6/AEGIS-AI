@@ -32,6 +32,10 @@ from backend.domain.risk_assessment import RiskAssessment
 from backend.domain.execution_result import ExecutionResult
 from backend.domain.market_context import MarketContext
 from backend.domain.process_result import ProcessResult
+from .order_block import OrderBlock
+from .order_block_direction import (
+    OrderBlockDirection,
+)
 from backend.domain.decision import (
     Decision,
     DecisionAction,
@@ -65,4 +69,6 @@ __all__ = [
     "RiskAssessment",
     "ExecutionResult",
     "ProcessResult",
+    "OrderBlock",
+    "OrderBlockDirection",
 ]

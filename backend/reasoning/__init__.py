@@ -11,6 +11,9 @@ from .structure_reasoner import StructureReasoner
 from .trend_reasoner import TrendReasoner
 from .bos_reasoner import BOSReasoner
 from .choch_reasoner import CHOCHReasoner
+from .order_block_reasoner import (
+    OrderBlockReasoner,
+)
 from .liquidity_sweep_reasoner import (
     LiquiditySweepReasoner,
 )
@@ -24,4 +27,5 @@ __all__ = [
     "BOSReasoner",
     "CHOCHReasoner",
     "LiquiditySweepReasoner",
+    "OrderBlockReasoner",
 ]

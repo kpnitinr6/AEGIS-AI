@@ -15,6 +15,9 @@ from backend.domain.instrument import Instrument
 from backend.domain.liquidity_sweep import LiquiditySweep
 from backend.domain.market_structure import MarketStructure
 from backend.domain.timeframe import Timeframe
+from backend.domain.order_block import (
+    OrderBlock,
+)
 from backend.domain.trend import Trend
 
 
@@ -42,7 +45,9 @@ class MarketContext:
     liquidity_sweeps: list[LiquiditySweep] = field(
         default_factory=list
     )
-
+    order_blocks: list[OrderBlock] = field(
+        default_factory=list,
+    )
     break_of_structures: list[
         BreakOfStructure
     ] = field(default_factory=list)
@@ -89,6 +94,15 @@ class MarketContext:
             if not isinstance(item, LiquiditySweep):
                 raise TypeError(
                     "liquidity_sweeps must contain only LiquiditySweep instances"
+                )
+
+        for item in self.order_blocks:
+            if not isinstance(
+                    item,
+                    OrderBlock,
+            ):
+                raise TypeError(
+                    "order_blocks must contain only OrderBlock instances"
                 )
 
         for item in self.break_of_structures:

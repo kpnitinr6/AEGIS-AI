@@ -7,6 +7,8 @@ Process Result Presenter.
 from __future__ import annotations
 
 from backend.domain import (
+    Evidence,
+    EvidenceSource,
     MarketContext,
     ProcessResult,
 )
@@ -16,6 +18,14 @@ class ProcessResultPresenter:
     """
     Converts an application run into a human-readable summary.
     """
+
+    _ORDER: dict[EvidenceSource, int] = {
+        EvidenceSource.TREND: 1,
+        EvidenceSource.STRUCTURE: 2,
+        EvidenceSource.BREAK_OF_STRUCTURE: 3,
+        EvidenceSource.CHANGE_OF_CHARACTER: 4,
+        EvidenceSource.LIQUIDITY_SWEEP: 5,
+    }
 
     def present(
         self,
@@ -41,22 +51,57 @@ class ProcessResultPresenter:
             else "Not executed."
         )
 
-        return (
-            "========================================\n"
-            "               AEGIS AI\n"
-            "========================================\n"
-            "\n"
-            f"Instrument        : {context.instrument.code}\n"
-            f"Timeframe         : {context.timeframe.name}\n"
-            "\n"
-            f"Market Structure  : {market_structure}\n"
-            f"Trend             : {trend}\n"
-            "\n"
-            f"Decision          : {result.decision.action.name}\n"
-            f"Confidence        : {result.decision.confidence}\n"
-            "\n"
-            f"Risk              : {result.risk_assessment.reason}\n"
-            f"Execution         : {execution}\n"
-            "\n"
-            "========================================"
+        lines = [
+            "========================================",
+            "               AEGIS AI",
+            "========================================",
+            "",
+            f"Instrument        : {context.instrument.code}",
+            f"Timeframe         : {context.timeframe.name}",
+            "",
+            f"Market Structure  : {market_structure}",
+            f"Trend             : {trend}",
+            "",
+            f"Decision          : {result.decision.action.name}",
+            f"Confidence        : {result.decision.confidence}",
+            "",
+            "Evidence",
+            "----------------------------------------",
+        ]
+
+        if result.decision.evidence:
+
+            ordered = sorted(
+                result.decision.evidence,
+                key=self._evidence_sort_key,
+            )
+
+            for item in ordered:
+                lines.append(f"• {item.reason}")
+
+        else:
+            lines.append(
+                "No supporting evidence."
+            )
+
+        lines.extend(
+            [
+                "",
+                f"Risk              : {result.risk_assessment.reason}",
+                f"Execution         : {execution}",
+                "",
+                "========================================",
+            ]
+        )
+
+        return "\n".join(lines)
+
+    def _evidence_sort_key(
+        self,
+        evidence: Evidence,
+    ) -> int:
+
+        return self._ORDER.get(
+            evidence.source,
+            999,
         )

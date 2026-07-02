@@ -1,57 +1,84 @@
+"""
+Tests for CandleSeries.
+"""
+
 from datetime import datetime, timezone
 from decimal import Decimal
 
 import pytest
 
-from backend.domain.candle import Candle
-from backend.domain.candle_series import CandleSeries
-from backend.domain.instrument import Instrument
-from backend.domain.time import Time
-from backend.domain.timeframe import Timeframe
+from backend.domain import (
+    Candle,
+    CandleSeries,
+    Instrument,
+    Time,
+    Timeframe,
+)
 
 
-def create_candle(close: str) -> Candle:
+def make_candle(
+    *,
+    minute: int,
+) -> Candle:
+
     return Candle(
         instrument=Instrument(
-            code="gold",
+            code="XAUUSD",
             name="Gold Spot",
         ),
         timeframe=Timeframe.M5,
         open_time=Time(
-            datetime(2026, 6, 27, 9, 15, tzinfo=timezone.utc)
+            datetime(
+                2026,
+                7,
+                7,
+                9,
+                minute,
+                tzinfo=timezone.utc,
+            )
         ),
-        open=Decimal("3365.00"),
-        high=Decimal("3368.00"),
-        low=Decimal("3364.00"),
-        close=Decimal(close),
+        open=Decimal("3350"),
+        high=Decimal("3360"),
+        low=Decimal("3340"),
+        close=Decimal("3355"),
         tick_volume=100,
     )
 
 
-def test_add_and_latest():
+def test_previous_of_returns_previous_candle() -> None:
+
     series = CandleSeries()
 
-    candle = create_candle("3366.50")
+    candle1 = make_candle(minute=0)
+    candle2 = make_candle(minute=5)
+    candle3 = make_candle(minute=10)
+
+    series.add(candle1)
+    series.add(candle2)
+    series.add(candle3)
+
+    assert series.previous_of(candle3) == candle2
+
+
+def test_previous_of_first_candle_returns_none() -> None:
+
+    series = CandleSeries()
+
+    candle = make_candle(minute=0)
 
     series.add(candle)
 
-    assert series.latest() == candle
+    assert series.previous_of(candle) is None
 
 
-def test_previous():
+def test_previous_of_unknown_candle_raises() -> None:
+
     series = CandleSeries()
 
-    first = create_candle("3365.00")
-    second = create_candle("3366.00")
+    known = make_candle(minute=0)
+    unknown = make_candle(minute=5)
 
-    series.add(first)
-    series.add(second)
-
-    assert series.previous() == first
-
-
-def test_empty_series():
-    series = CandleSeries()
+    series.add(known)
 
     with pytest.raises(ValueError):
-        series.latest()
+        series.previous_of(unknown)
