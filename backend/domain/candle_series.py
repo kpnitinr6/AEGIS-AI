@@ -34,6 +34,7 @@ class CandleSeries:
 
     def latest(self) -> Candle:
         """Return the most recent candle."""
+
         if not self._candles:
             raise ValueError("CandleSeries is empty")
 
@@ -41,10 +42,35 @@ class CandleSeries:
 
     def previous(self) -> Candle:
         """Return the previous completed candle."""
+
         if len(self._candles) < 2:
-            raise ValueError("CandleSeries contains fewer than two candles")
+            raise ValueError(
+                "CandleSeries contains fewer than two candles"
+            )
 
         return self._candles[-2]
+
+    def candles_after(
+        self,
+        candle: Candle,
+    ) -> list[Candle]:
+        """
+        Return all candles occurring after the supplied candle.
+
+        Raises
+        ------
+        ValueError
+            If the supplied candle is not present in the series.
+        """
+
+        try:
+            index = self._candles.index(candle)
+        except ValueError as exc:
+            raise ValueError(
+                "candle is not contained in this CandleSeries"
+            ) from exc
+
+        return self._candles[index + 1 :]
 
     def __len__(self) -> int:
         return len(self._candles)
