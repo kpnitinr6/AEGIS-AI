@@ -11,6 +11,9 @@ data.
 from __future__ import annotations
 
 from backend.domain import CandleSeries
+from backend.perception.break_of_structure_detector import (
+    BreakOfStructureDetector,
+)
 from backend.perception.perception_result import (
     PerceptionResult,
 )
@@ -26,9 +29,9 @@ class PerceptionPipeline:
     """
     Coordinates the perception layer.
 
-    Version 1
+    Version 2
 
-    Pipeline:
+    Pipeline
 
         CandleSeries
             ↓
@@ -36,20 +39,18 @@ class PerceptionPipeline:
             ↓
         StructureDetector
             ↓
+        BreakOfStructureDetector
+            ↓
         PerceptionResult
-
-    Future versions will extend the pipeline with:
-
-    - Break Of Structure
-    - Change Of Character
-    - Liquidity Sweep
-    - Order Block
     """
 
     def __init__(
         self,
         swing_detector: SwingDetector | None = None,
         structure_detector: StructureDetector | None = None,
+        break_of_structure_detector: (
+            BreakOfStructureDetector | None
+        ) = None,
     ) -> None:
 
         self._swing_detector = (
@@ -62,6 +63,12 @@ class PerceptionPipeline:
             structure_detector
             if structure_detector is not None
             else StructureDetector()
+        )
+
+        self._bos_detector = (
+            break_of_structure_detector
+            if break_of_structure_detector is not None
+            else BreakOfStructureDetector()
         )
 
     def detect(
@@ -90,7 +97,19 @@ class PerceptionPipeline:
             )
         )
 
+        break_of_structures = []
+
+        bos = self._bos_detector.detect(
+            market_structure,
+        )
+
+        if bos is not None:
+            break_of_structures.append(
+                bos,
+            )
+
         return PerceptionResult(
             swings=swings,
             market_structure=market_structure,
+            break_of_structures=break_of_structures,
         )

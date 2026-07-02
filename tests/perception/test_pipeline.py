@@ -145,3 +145,15 @@ def test_detect_returns_market_structure() -> None:
         result.market_structure,
         MarketStructure,
     )
+
+    def test_detect_returns_break_of_structures_collection() -> None:
+        pipeline = PerceptionPipeline()
+
+        result = pipeline.detect(
+            make_series_with_swing(),
+        )
+
+        assert isinstance(
+            result.break_of_structures,
+            list,
+        )
