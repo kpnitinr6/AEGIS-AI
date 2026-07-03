@@ -13,6 +13,7 @@ import csv
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
+
 from backend.adapters.base import MarketAdapter
 from backend.domain import (
     Candle,

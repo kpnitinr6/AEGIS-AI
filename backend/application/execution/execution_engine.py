@@ -9,8 +9,8 @@ from __future__ import annotations
 from typing import Protocol
 
 from backend.domain import (
+    ExecutionRequest,
     ExecutionResult,
-    TradeIntent,
 )
 
 
@@ -21,9 +21,9 @@ class ExecutionEngine(Protocol):
 
     def execute(
         self,
-        trade_intent: TradeIntent,
+        execution_request: ExecutionRequest,
     ) -> ExecutionResult:
         """
-        Execute a trade intent.
+        Execute an execution request.
         """
         ...

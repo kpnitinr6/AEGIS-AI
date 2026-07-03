@@ -4,14 +4,22 @@ AEGIS AI
 Serialization adapters.
 """
 
-from backend.adapters.serialization.execution_result_serializer import (
-    ExecutionResultSerializer,
+from .execution_request_deserializer import (
+    ExecutionRequestDeserializer,
 )
-from backend.adapters.serialization.execution_request_serializer import (
+from .execution_request_serializer import (
     ExecutionRequestSerializer,
+)
+from .execution_result_deserializer import (
+    ExecutionResultDeserializer,
+)
+from .execution_result_serializer import (
+    ExecutionResultSerializer,
 )
 
 __all__ = [
+    "ExecutionRequestDeserializer",
     "ExecutionRequestSerializer",
+    "ExecutionResultDeserializer",
     "ExecutionResultSerializer",
 ]

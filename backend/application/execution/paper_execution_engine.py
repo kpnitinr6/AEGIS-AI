@@ -11,7 +11,7 @@ from backend.application.execution.execution_engine import (
 )
 from backend.domain import (
     ExecutionResult,
-    TradeIntent,
+    ExecutionRequest,
 )
 
 
@@ -23,7 +23,7 @@ class PaperExecutionEngine(ExecutionEngine):
 
     def execute(
         self,
-        trade_intent: TradeIntent,
+        execution_request: ExecutionRequest,
     ) -> ExecutionResult:
 
         return ExecutionResult(
