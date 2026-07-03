@@ -22,6 +22,9 @@ from backend.testing.scenarios.bearish_trend_scenario import (
 from backend.testing.scenarios.bullish_trend_scenario import (
     BullishTrendScenario,
 )
+from backend.testing.scenarios.range_scenario import (
+    RangeScenario,
+)
 
 
 def make_instrument() -> Instrument:
@@ -90,6 +93,55 @@ def test_aegis_processes_bearish_trend_scenario() -> None:
     aegis = create_aegis()
 
     scenario = BearishTrendScenario()
+
+    candle_series = scenario.generate(
+        instrument=make_instrument(),
+        timeframe=Timeframe.M5,
+        count=20,
+    )
+
+    run_result = aegis.process(
+        candle_series,
+    )
+
+    assert isinstance(
+        run_result,
+        ApplicationRunResult,
+    )
+
+    assert (
+        run_result.context.instrument.code
+        == "XAUUSD"
+    )
+
+    assert (
+        run_result.context.timeframe
+        == Timeframe.M5
+    )
+
+    assert isinstance(
+        run_result.result,
+        ProcessResult,
+    )
+
+    assert run_result.result.decision is not None
+
+    assert (
+        run_result.result.risk_assessment
+        is not None
+    )
+
+
+def test_aegis_processes_range_scenario() -> None:
+    """
+    Given a ranging market scenario,
+    when AEGIS processes the candles,
+    then a complete application result is produced.
+    """
+
+    aegis = create_aegis()
+
+    scenario = RangeScenario()
 
     candle_series = scenario.generate(
         instrument=make_instrument(),

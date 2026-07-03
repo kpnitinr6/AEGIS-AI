@@ -1,7 +1,7 @@
 """
 AEGIS AI Testing
 
-Bullish Trend Scenario.
+Range Scenario.
 """
 
 from __future__ import annotations
@@ -21,10 +21,12 @@ from backend.testing.scenarios.base import (
 )
 
 
-class BullishTrendScenario(MarketScenario):
+class RangeScenario(MarketScenario):
     """
-    Produces a deterministic bullish market with
-    realistic pullbacks.
+    Produces a deterministic ranging market.
+
+    Price oscillates around a central value without
+    establishing a sustained trend.
     """
 
     def generate(
@@ -58,29 +60,24 @@ class BullishTrendScenario(MarketScenario):
 
         now = datetime.now(timezone.utc)
 
-        price = Decimal("3300.00")
+        base_price = Decimal("3300.00")
 
-        #
-        # Deterministic bullish movement pattern.
-        #
-        # Produces:
-        #
-        #   Higher High
-        #        ↓
-        #   Small Pullback
-        #        ↓
-        #   Higher High
-        #        ↓
-        #   Small Pullback
-        #
-        movements = [
-            Decimal("4.00"),
+        offsets = [
+            Decimal("0.00"),
+            Decimal("2.00"),
+            Decimal("-1.00"),
+            Decimal("1.00"),
+            Decimal("0.00"),
+            Decimal("2.00"),
             Decimal("-2.00"),
-            Decimal("5.00"),
-            Decimal("-2.00"),
+            Decimal("1.00"),
         ]
 
         for index in range(count):
+
+            price = base_price + offsets[
+                index % len(offsets)
+            ]
 
             candle = Candle(
                 instrument=instrument,
@@ -91,18 +88,14 @@ class BullishTrendScenario(MarketScenario):
                     )
                 ),
                 open=price,
-                high=price + Decimal("3.00"),
-                low=price - Decimal("1.00"),
-                close=price + Decimal("2.00"),
+                high=price + Decimal("2.00"),
+                low=price - Decimal("2.00"),
+                close=price + Decimal("0.50"),
                 tick_volume=1000 + index,
             )
 
             series.add(
                 candle,
             )
-
-            price += movements[
-                index % len(movements)
-            ]
 
         return series
